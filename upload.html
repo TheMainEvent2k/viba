@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Upload Game Screenshot</title>
+  <script type="module">
+    // Firebase SDK
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getStorage, ref, uploadBytesResumable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCexswjOxGQ2rjUoaFeg5cx69axhFci0zY",
+      authDomain: "vibawebapp.firebaseapp.com",
+      projectId: "vibawebapp",
+      storageBucket: "vibawebapp.appspot.com", // FIXED
+      messagingSenderId: "960959295412",
+      appId: "1:960959295412:web:5b1d9e747291985727cce1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const storage = getStorage(app);
+
+    window.uploadFile = () => {
+      const file = document.getElementById("fileInput").files[0];
+      if (!file) return alert("Please select a file first.");
+
+      const storageRef = ref(storage, 'uploads/' + file.name);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          document.getElementById("status").innerText = `Uploading: ${progress.toFixed(0)}%`;
+        },
+        (error) => {
+          alert("Upload failed: " + error);
+        },
+        () => {
+          document.getElementById("status").innerText = `✅ Upload complete: ${file.name}`;
+        }
+      );
+    };
+  </script>
+</head>
+<body>
+  <h2>Upload Game Screenshot</h2>
+  <input type="file" id="fileInput" accept="image/*" />
+  <button onclick="uploadFile()">Upload</button>
+  <p id="status"></p>
+</body>
+</html>
